@@ -126,5 +126,6 @@ class ReportStyle(models.Model):
         computed_style = []
         for key, parse_style in self._get_style_map():
             if key in css_style:
-                computed_style.append(f"{key}: {parse_style(css_style.get(key))}")
+                if parse_style(css_style[key]):
+                    computed_style.append(f"{key}: {parse_style(css_style.get(key))}")
         return ";".join(computed_style), css_style

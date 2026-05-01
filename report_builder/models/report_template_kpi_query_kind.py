@@ -15,6 +15,6 @@ class ReportTemplateKpiQueryKind(models.Model):
     name = fields.Char(required=True)
     code = fields.Char(required=True)
     source = fields.Selection(
-        selection=[("account", "Account")],
+        selection=[],
         required=True,
     )

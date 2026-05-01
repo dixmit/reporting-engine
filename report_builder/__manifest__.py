@@ -9,13 +9,11 @@
     "author": "Dixmit,Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/reporting-engine",
     "depends": [
-        "account",
         "board",
         "date_range",
         "report_xlsx",
     ],
     "data": [
-        "data/report.template.kpi.query.kind.csv",
         "security/ir.model.access.csv",
         "views/menu.xml",
         "views/report_instance.xml",
