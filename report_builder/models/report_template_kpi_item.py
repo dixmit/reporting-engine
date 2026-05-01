@@ -3,15 +3,17 @@
 
 from collections import defaultdict
 
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.osv.expression import OR
 from odoo.tools.safe_eval import safe_eval
 
 
 class ReportTemplateKpiItem(models.Model):
     _name = "report.template.kpi.item"
-    _description = "Report Template Kpi Item"  # TODO
+    _description = "Report Template Kpi Item"
+    _order = "sequence ASC, id ASC"
 
+    sequence = fields.Integer(default=20)
     kind = fields.Selection(
         [("query", "Query"), ("kpi", "KPI")],
         default="query",
@@ -31,7 +33,14 @@ class ReportTemplateKpiItem(models.Model):
         domain="[('source', '=', source)]",
     )
     code = fields.Char()
-    source = fields.Selection(related="parent_kpi_id.template_id.source", store=True)
+    source = fields.Selection(
+        selection=lambda self: self.env["report.template.kpi.query.kind"]
+        ._fields["source"]
+        .selection,
+        compute="_compute_source",
+        readonly=False,
+        store=True,
+    )
     domain = fields.Char(help="Domain to filter the records for this KPI item. ")
     template_id = fields.Many2one(
         related="parent_kpi_id.template_id",
@@ -41,6 +50,11 @@ class ReportTemplateKpiItem(models.Model):
         "If not checked, it will be considered negative.",
         default=True,
     )
+
+    @api.depends("parent_kpi_id")
+    def _compute_source(self):
+        for record in self:
+            record.source = record.parent_kpi_id.template_id.source
 
     def _get_kpi_data(self, cols, kpi_data):
         """

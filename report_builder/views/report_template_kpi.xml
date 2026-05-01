@@ -24,27 +24,32 @@
                         <page name="items" string="Items">
                             <field name="item_ids">
                                 <list editable="bottom">
-                                    <field name="kind" />
+                                    <field name="sequence" widget="handle" />
                                     <field name="parent_kpi_id" column_invisible="1" />
-                                    <field name="template_id" column_invisible="1" />
-                                    <field
-                                        name="code"
-                                        invisible="kind != 'query'"
-                                        required="kind == 'query'"
-                                    />
-                                    <field name="domain" invisible="kind != 'query'" />
-                                    <field name="source" column_invisible="1" />
-                                    <field
-                                        name="query_kind_id"
-                                        invisible="kind != 'query'"
-                                        required="kind == 'query'"
-                                    />
+                                    <field name="kind" />
                                     <field
                                         name="kpi_id"
                                         required="kind == 'kpi'"
                                         invisible="kind != 'kpi'"
                                         options="{'no_create': True}"
                                     />
+                                    <field name="template_id" column_invisible="1" />
+                                    <field
+                                        name="source"
+                                        optional="hide"
+                                        invisible="kind != 'query'"
+                                    />
+                                    <field
+                                        name="query_kind_id"
+                                        invisible="kind != 'query'"
+                                        required="kind == 'query'"
+                                    />
+                                    <field
+                                        name="code"
+                                        invisible="kind != 'query'"
+                                        required="kind == 'query'"
+                                    />
+                                    <field name="domain" invisible="kind != 'query'" />
                                     <field name="positive" />
                                 </list>
                             </field>

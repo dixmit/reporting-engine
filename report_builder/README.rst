@@ -63,8 +63,6 @@ All the actions to do before publish this:
 - How to handle budgets
 - Comparison of columns
 - Add an inverse to port easily from mis-builder
-- Right now, reports are fixed to a single source of data, maybe we
-  could split it
 
 Bug Tracker
 ===========

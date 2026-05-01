@@ -10,7 +10,9 @@ class ReportTemplate(models.Model):
 
     name = fields.Char(required=True)
     source = fields.Selection(
-        [("account", "Account")],
+        selection=lambda self: self.env["report.template.kpi.query.kind"]
+        ._fields["source"]
+        .selection,
         required=True,
         default="account",
     )
