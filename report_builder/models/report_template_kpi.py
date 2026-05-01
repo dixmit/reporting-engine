@@ -14,11 +14,9 @@ class ReportTemplateKpi(models.Model):
     template_id = fields.Many2one("report.template", required=True, ondelete="cascade")
     name = fields.Char(required=True)
     code = fields.Char(
-        required=True,
         compute="_compute_code",
         store=True,
         readonly=False,
-        prefetch=False,
     )
     invisible = fields.Boolean(default=False)
     item_ids = fields.One2many(

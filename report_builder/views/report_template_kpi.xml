@@ -12,7 +12,7 @@
                         <field name="name" />
                     </h2>
                     <group>
-                        <field name="code" />
+                        <field name="code" required="1" />
                         <field name="style_id" />
                         <field name="sequence" />
                         <field name="is_currency" />
