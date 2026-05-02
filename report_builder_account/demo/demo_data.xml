@@ -19,6 +19,8 @@
     <field name="name">Account demo Report Template</field>
     <field name="source">account</field>
     <field name="style_id" ref="demo_report_style_default" />
+    <field name="search_model_id" ref="account.model_account_move_line" />
+    <field name="search_view_id" ref="account.view_account_move_line_filter" />
 </record>
     <record id="demo_report_template_kpi_1" model="report.template.kpi">
     <field name="name">Account demo KPI 1</field>
