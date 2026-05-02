@@ -85,3 +85,13 @@ class ReportInstance(models.Model):
             }
         )
         return action
+
+    def get_pdf_report_action(self, pivot_date, domain=None):
+        # TODO: implement the method to return the action for PDF report generation
+        self.ensure_one()
+        return {}
+
+    def get_xlsx_report_action(self, pivot_date, domain=None):
+        # TODO: implement the method to return the action for XLSX report generation
+        self.ensure_one()
+        return {}

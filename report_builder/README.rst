@@ -59,6 +59,7 @@ All the actions to do before publish this:
 - How to handle budgets
 - Comparison of columns
 - Add an inverse to port easily from mis-builder
+- Printing
 
 Bug Tracker
 ===========

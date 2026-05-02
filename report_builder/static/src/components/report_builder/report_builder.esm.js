@@ -80,11 +80,31 @@ export class ReportBuilder extends Component {
     refresh() {
         this.updateData();
     }
-    printPdf() {
-        // TODO: implement the method to print the report in PDF format
+    async printPdf() {
+        this.action_service.doAction(
+            await this.orm.call(
+                this.props.record.model.config.resModel,
+                "get_pdf_report_action",
+                [
+                    this.props.record.resIds[0],
+                    serializeDate(this.state.pivot_date),
+                    this.env.searchModel.domain,
+                ]
+            )
+        );
     }
-    printXlsx() {
-        // TODO: implement the method to print the report in XLSX format
+    async printXlsx() {
+        this.action_service.doAction(
+            await this.orm.call(
+                this.props.record.model.config.resModel,
+                "get_xlsx_report_action",
+                [
+                    this.props.record.resIds[0],
+                    serializeDate(this.state.pivot_date),
+                    this.env.searchModel.domain,
+                ]
+            )
+        );
     }
     async displaySettings() {
         this.action_service.doAction(
@@ -94,7 +114,6 @@ export class ReportBuilder extends Component {
                 [this.props.record.resIds[0]]
             )
         );
-        // TODO: implement the method to display the report settings
     }
 }
 
