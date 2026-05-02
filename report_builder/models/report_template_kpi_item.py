@@ -54,17 +54,17 @@ class ReportTemplateKpiItem(models.Model):
         for record in self:
             record.source = record.parent_kpi_id.template_id.source
 
-    def _get_kpi_data(self, cols, kpi_data, domain=None):
+    def _get_kpi_data(self, cols, kpi_data, **kwargs):
         """
         Process the KPI item and return the data for the KPI.
         This method should be overridden in subclasses if needed.
         """
         value = defaultdict(lambda: {"total": 0, "values": defaultdict(lambda: 0)})
         for item in self:
-            item._get_kpi_value(cols, kpi_data, value, domain)
+            item._get_kpi_value(cols, kpi_data, value, **kwargs)
         return value
 
-    def _get_kpi_value(self, cols, kpi_data, value, domain=None):
+    def _get_kpi_value(self, cols, kpi_data, value, **kwargs):
         """
         Get the value for the KPI item.
         This method should be overridden in subclasses if needed.
@@ -75,7 +75,7 @@ class ReportTemplateKpiItem(models.Model):
             if self.kind == "query":
                 kpi_value, values = getattr(
                     self, f"_get_kpi_value_{self.source}_{self.query_kind_id.code}"
-                )(col, domain)
+                )(col, kpi_data, **kwargs)
             elif self.kind == "kpi":
                 kpi_value = kpi_data.get(self.kpi_id.id, {}).get(col["id"], 0)["total"]
                 values = (

@@ -28,7 +28,7 @@ class ReportTemplateKpiQueryKind(models.Model):
 class ReportTemplateKpiItem(models.Model):
     _inherit = "report.template.kpi.item"
 
-    def _get_kpi_value_dummy_dummy(self, col, domain):
+    def _get_kpi_value_dummy_dummy(self, col, kpi_data, **kwargs):
         domain = [
             ("date", ">=", col["date_from"]),
             ("date", "<=", col["date_to"]),

@@ -61,8 +61,17 @@ class ReportInstance(models.Model):
         self.ensure_one()
         cols = self.column_ids._get_data(fields.Date.from_string(pivot_date))
         kpi_data = {}
-        self.template_id.kpi_ids._process_information(cols, kpi_data, domain)
+        self.template_id.kpi_ids._process_information(
+            cols, kpi_data, domain=domain, **self._extra_process_keys()
+        )
         return kpi_data
+
+    def _extra_process_keys(self):
+        """
+        This method can be overridden in subclasses to provide extra keys
+        for the _process_information method.
+        """
+        return {}
 
     def view_report_instance(self):
         self.ensure_one()

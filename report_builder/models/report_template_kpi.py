@@ -69,22 +69,22 @@ class ReportTemplateKpi(models.Model):
         for record in self:
             record.code = (record.name or " ").replace(" ", "_").lower()
 
-    def _process_information(self, cols, kpi_data, domain=None):
+    def _process_information(self, cols, kpi_data, **kwargs):
         unprocessed_items = self.browse()
         for kpi in self:
-            if not kpi._process_item(cols, kpi_data, domain):
+            if not kpi._process_item(cols, kpi_data, **kwargs):
                 unprocessed_items |= kpi
         if len(unprocessed_items) == len(self):
             raise ValidationError(_("KPIs cannot be processed"))
         if unprocessed_items:
-            unprocessed_items._process_information(cols, kpi_data, domain)
+            unprocessed_items._process_information(cols, kpi_data, **kwargs)
 
-    def _process_item(self, cols, kpi_data, domain=None):
+    def _process_item(self, cols, kpi_data, **kwargs):
         if any(
             item.kpi_id.id not in kpi_data
             for item in self.item_ids
             if item.kind == "kpi"
         ):
             return False
-        kpi_data[self.id] = self.item_ids._get_kpi_data(cols, kpi_data, domain)
+        kpi_data[self.id] = self.item_ids._get_kpi_data(cols, kpi_data, **kwargs)
         return True
