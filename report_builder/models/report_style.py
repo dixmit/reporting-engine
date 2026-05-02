@@ -1,7 +1,7 @@
 # Copyright 2025 Dixmit
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import _, fields, models
+from odoo import fields, models
 
 
 class ReportStyle(models.Model):
@@ -19,12 +19,34 @@ class ReportStyle(models.Model):
         default="#FFFFFF",
     )
     background_color_inherit = fields.Boolean(default=True)
-    font_style = fields.Selection(selection=lambda self: self._get_font_styles())
+    font_style = fields.Selection(
+        [
+            ("normal", "Normal"),
+            ("italic", "Italic"),
+            ("oblique", "Oblique"),
+        ]
+    )
     font_style_inherit = fields.Boolean(default=True)
-    font_weight = fields.Selection(selection=lambda self: self._get_font_weights())
+    font_weight = fields.Selection(
+        [
+            ("normal", "Normal"),
+            ("bold", "Bold"),
+            ("bolder", "Bolder"),
+            ("lighter", "Lighter"),
+        ]
+    )
     font_weight_inherit = fields.Boolean(default=True)
     font_size = fields.Selection(
-        selection=lambda self: self._get_font_sizes(),
+        [
+            ("xx-small", "XX-Small"),
+            ("x-small", "X-Small"),
+            ("small", "Small"),
+            ("medium", "Medium"),
+            ("large", "Large"),
+            ("x-large", "X-Large"),
+            ("xx-large", "XX-Large"),
+            ("xxx-large", "XXX-Large"),
+        ]
     )
     font_size_inherit = fields.Boolean(default=True)
     indent_level = fields.Integer()
@@ -51,33 +73,6 @@ class ReportStyle(models.Model):
     hide_empty_inherit = fields.Boolean(default=True)
     hide_always = fields.Boolean(default=False)
     hide_always_inherit = fields.Boolean(default=True)
-
-    def _get_font_styles(self):
-        return [
-            ("normal", _("Normal")),
-            ("italic", _("Italic")),
-            ("oblique", _("Oblique")),
-        ]
-
-    def _get_font_weights(self):
-        return [
-            ("normal", _("Normal")),
-            ("bold", _("Bold")),
-            ("bolder", _("Bolder")),
-            ("lighter", _("Lighter")),
-        ]
-
-    def _get_font_sizes(self):
-        return [
-            ("xx-small", _("XX-Small")),
-            ("x-small", _("X-Small")),
-            ("small", _("Small")),
-            ("medium", _("Medium")),
-            ("large", _("Large")),
-            ("x-large", _("X-Large")),
-            ("xx-large", _("XX-Large")),
-            ("xxx-large", _("XXX-Large")),
-        ]
 
     def _get_style(self, style=None):
         """Get style values from the current style or the given style."""

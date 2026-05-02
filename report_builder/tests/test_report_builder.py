@@ -1,6 +1,9 @@
 # Copyright 2026 Dixmit
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from datetime import date
+
+from freezegun import freeze_time
 from odoo_test_helper import FakeModelLoader
 
 from odoo.exceptions import ValidationError
@@ -77,6 +80,23 @@ class TestReportBuilder(TransactionCase):
                 }
             )
             self.report_kpi[i] = kpi
+        self.kpi_related = self.env["report.template.kpi"].create(
+            {
+                "name": "KPI 10",
+                "template_id": self.report.id,
+                "item_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "kind": "kpi",
+                            "kpi_id": self.report_kpi[1].id,
+                            "positive": False,
+                        },
+                    )
+                ],
+            }
+        )
 
     def test_report(self):
         report = self.env["report.instance"].create(
@@ -181,6 +201,14 @@ class TestReportBuilder(TransactionCase):
         self.assertEqual(
             data[self.report_kpi[9].id][column_2.id]["total"],
             0,
+        )
+        self.assertEqual(
+            data[self.kpi_related.id][column_1.id]["total"],
+            -1,
+        )
+        self.assertEqual(
+            data[self.kpi_related.id][column_2.id]["total"],
+            -145,
         )
 
     def test_style(self):
@@ -326,3 +354,66 @@ class TestReportBuilder(TransactionCase):
     def test_mis_formula(self):
         self.assertEqual(self.report_kpi[1].code, "kpi_1")
         self.assertEqual(self.report_kpi[1].mis_builder_formula, "dummy[1%]")
+        self.report_kpi[1].item_ids.domain = "[('field', '=', 'value')]"
+        self.assertEqual(
+            self.report_kpi[1].mis_builder_formula, "dummy[1%][('field', '=', 'value')]"
+        )
+        self.assertEqual(self.kpi_related.mis_builder_formula, "-kpi_1")
+
+    def test_date(self):
+        report = self.env["report.instance"].create(
+            {
+                "name": "Test Report Instance",
+                "template_id": self.report.id,
+                "column_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Column 1",
+                            "date_from": "2023-01-01",
+                            "date_to": "2023-01-10",
+                            "mode": "date",
+                        },
+                    ),
+                ],
+            }
+        )
+        column = report.column_ids
+        self.assertEqual(column.compute_date_from, date(2023, 1, 1))
+        self.assertEqual(column.compute_date_to, date(2023, 1, 10))
+        column.write(
+            {
+                "mode": "relative",
+                "date_type": "months",
+                "duration_type": "months",
+                "duration": 1,
+                "offset": 0,
+                "is_ytd": False,
+            }
+        )
+        with freeze_time("2023-03-01"):
+            self.assertEqual(column.compute_date_from, date(2023, 3, 1))
+            self.assertEqual(column.compute_date_to, date(2023, 4, 1))
+        column.is_ytd = True
+        with freeze_time("2023-03-01"):
+            self.assertEqual(column.compute_date_from, date(2023, 1, 1))
+            self.assertEqual(column.compute_date_to, date(2023, 4, 1))
+
+    def test_actions(self):
+        report = self.env["report.instance"].create(
+            {
+                "name": "Test Report Instance",
+                "template_id": self.report.id,
+            }
+        )
+        view_action = report.view_report_instance()
+        self.assertEqual(view_action["res_id"], report.id)
+        self.assertEqual(view_action["view_mode"], "form")
+        self.assertTrue(any(view[1] == "form" for view in view_action["views"]))
+        display_settings_action = report.get_display_settings_action()
+        self.assertEqual(display_settings_action["res_id"], report.id)
+        self.assertEqual(display_settings_action["view_mode"], "form")
+        self.assertTrue(
+            any(view[1] == "form" for view in display_settings_action["views"])
+        )
