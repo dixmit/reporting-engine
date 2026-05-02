@@ -1,10 +1,11 @@
-import {Component, onWillStart, onWillUnmount, useState} from "@odoo/owl";
+import {Component, onWillStart, onWillUnmount, useState, useSubEnv} from "@odoo/owl";
 import {parseDate, serializeDate} from "@web/core/l10n/dates";
+import {useBus, useService} from "@web/core/utils/hooks";
 import {DateTimeInput} from "@web/core/datetime/datetime_input";
 import {SearchBar} from "@web/search/search_bar/search_bar";
+import {SearchModel} from "@web/search/search_model";
 import {formatMonetary} from "@web/views/fields/formatters";
 import {registry} from "@web/core/registry";
-import {useService} from "@web/core/utils/hooks";
 
 export class ReportBuilderValue extends Component {
     get formattedValue() {
@@ -26,22 +27,49 @@ export class ReportBuilder extends Component {
         super.setup();
         this.state = useState({date: false, data: {}});
         this.orm = useService("orm");
+        this.view = useService("view");
+        this.dialog = useService("dialog");
         this.bus_service = useService("bus_service");
         this.action_service = useService("action");
+        useSubEnv({
+            searchModel: new SearchModel(this.env, {
+                orm: this.orm,
+                view: this.view,
+                dialog: this.dialog,
+            }),
+        });
+        useBus(this.env.searchModel, "update", async () => {
+            await this.env.searchModel.sectionsPromise;
+            this.updateData();
+        });
         onWillStart(this.onWillStart);
         onWillUnmount(() => {
             this.bus_service.deleteChannel("report_builder");
         });
     }
-    onWillStart() {
+    async onWillStart() {
         this.state.pivot_date = parseDate(this.props.record.data.data.date);
+        if (this.showSearchBar) {
+            await this.env.searchModel.load({
+                resModel: this.props.record.data.search_res_model,
+                searchViewId: this.props.record.data.search_view_id[0],
+            });
+        }
         this.updateData();
     }
+    get showSearchBar() {
+        return (
+            this.props.record.data.show_search_bar &&
+            this.props.record.data.search_res_model &&
+            this.props.record.data.search_view_id
+        );
+    }
     async updateData() {
+        const domain = this.showSearchBar ? this.env.searchModel.domain : [];
         const data = await this.orm.call(
             this.props.record.model.config.resModel,
             "process_information",
-            [this.props.record.resIds, serializeDate(this.state.pivot_date)]
+            [this.props.record.resIds, serializeDate(this.state.pivot_date), domain]
         );
         this.state.data = data;
     }
@@ -80,6 +108,8 @@ export const reportBuilder = {
         {name: "data", type: "json"},
         {name: "currency_id", type: "many2one", relation: "res.currency"},
         {name: "show_search_bar", type: "boolean"},
+        {name: "search_view_id", type: "many2one"},
+        {name: "search_res_model", type: "char"},
         {name: "show_settings", type: "boolean"},
         {name: "show_pivot_date", type: "boolean"},
     ],

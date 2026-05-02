@@ -28,13 +28,15 @@ class ReportTemplateKpiQueryKind(models.Model):
 class ReportTemplateKpiItem(models.Model):
     _inherit = "report.template.kpi.item"
 
-    def _get_kpi_value_dummy_dummy(self, col):
+    def _get_kpi_value_dummy_dummy(self, col, domain):
         domain = [
             ("date", ">=", col["date_from"]),
             ("date", "<=", col["date_to"]),
         ]
         if self.domain:
             domain += safe_eval(self.domain)
+        if domain:
+            domain += domain
         if self.code:
             domain += OR(
                 [[("name", "=ilike", code.strip())] for code in self.code.split(",")]

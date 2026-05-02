@@ -12,7 +12,9 @@ class ReportInstance(models.Model):
     name = fields.Char(required=True)
     template_id = fields.Many2one("report.template", required=True)
     source = fields.Selection(related="template_id.source", store=True)
-    show_search_bar = fields.Boolean(default=True)
+    show_search_bar = fields.Boolean(default=False)
+    search_view_id = fields.Many2one(related="template_id.search_view_id")
+    search_res_model = fields.Char(related="template_id.search_model_id.model")
     show_settings = fields.Boolean(default=True)
     show_pivot_date = fields.Boolean(default=True)
     base_date = fields.Date()
@@ -55,11 +57,11 @@ class ReportInstance(models.Model):
             "columns": columns,
         }
 
-    def process_information(self, pivot_date):
+    def process_information(self, pivot_date, domain=None):
         self.ensure_one()
         cols = self.column_ids._get_data(fields.Date.from_string(pivot_date))
         kpi_data = {}
-        self.template_id.kpi_ids._process_information(cols, kpi_data)
+        self.template_id.kpi_ids._process_information(cols, kpi_data, domain)
         return kpi_data
 
     def view_report_instance(self):

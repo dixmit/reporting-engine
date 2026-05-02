@@ -12,6 +12,8 @@
                         <field name="name" />
                         <field name="source" />
                         <field name="style_id" />
+                        <field name="search_model_id" />
+                        <field name="search_view_id" />
                     </group>
                     <notebook>
                         <page name="kpi" string="KPIs">

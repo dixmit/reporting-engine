@@ -7,7 +7,7 @@
         <div class="o_report_builder">
             <div class="oe_mis_builder_cp">
                 <div class="oe_mis_builder_cp_right_top">
-                    <SearchBar t-if="props.record.data.show_search_bar" />
+                    <SearchBar t-if="showSearchBar" />
                 </div>
                 <div class="oe_mis_builder_cp_right_bottom">
                     <div class="oe_mis_builder_filter_buttons">
