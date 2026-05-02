@@ -15,6 +15,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         super().setUpClass()
         move = cls.init_invoice(
             "out_invoice",
+            partner=cls.partner_a,
             amounts=[1000],
             post=True,
             invoice_date="2023-01-01",
@@ -22,6 +23,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         )
         cls.init_invoice(
             "out_invoice",
+            partner=cls.partner_b,
             amounts=[10000],
             post=True,
             invoice_date="2024-01-01",
@@ -30,6 +32,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         # We are adding this move to see that it isn't added
         cls.init_invoice(
             "out_invoice",
+            partner=cls.partner_a,
             amounts=[100000],
             post=True,
             invoice_date="2025-01-01",
@@ -37,6 +40,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         )
         cls.init_invoice(
             "out_refund",
+            partner=cls.partner_a,
             amounts=[1],
             post=True,
             invoice_date="2023-01-01",
@@ -44,6 +48,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         )
         cls.init_invoice(
             "out_refund",
+            partner=cls.partner_b,
             amounts=[10],
             post=True,
             invoice_date="2024-01-01",
@@ -53,6 +58,7 @@ class TestBuilder(AccountTestInvoicingCommon):
         cls.init_invoice(
             "out_refund",
             amounts=[100],
+            partner=cls.partner_a,
             post=True,
             invoice_date="2025-01-01",
             company=cls.company_data["company"],
@@ -183,4 +189,34 @@ class TestBuilder(AccountTestInvoicingCommon):
                 self.instance.column_ids.id
             ]["total"],
             1,
+        )
+
+    def test_report_filter(self):
+        self.assertEqual(
+            self.instance.process_information(
+                "2024-01-01", [("partner_id", "=", self.partner_b.id)]
+            )[self.kpi.id][self.instance.column_ids.id]["total"],
+            -9990,
+        )
+        self.assertEqual(
+            self.instance.process_information(
+                "2024-01-01", [("partner_id", "=", self.partner_a.id)]
+            )[self.kpi.id][self.instance.column_ids.id]["total"],
+            0,
+        )
+
+    def test_item_filter(self):
+        self.item.domain = f"[('partner_id', '=', {self.partner_b.id})]"
+        self.assertEqual(
+            self.instance.process_information(
+                "2024-01-01",
+            )[self.kpi.id][self.instance.column_ids.id]["total"],
+            -9990,
+        )
+        self.item.domain = f"[('partner_id', '=', {self.partner_a.id})]"
+        self.assertEqual(
+            self.instance.process_information(
+                "2024-01-01",
+            )[self.kpi.id][self.instance.column_ids.id]["total"],
+            0,
         )
